@@ -18,6 +18,6 @@ public class DateTools {
     }
 
     public static void main(String[] args) {
-        System.out.println("当前日期为:" + getNowDate());
+        System.out.println("当前日期为 :" + getNowDate());
     }
 }
