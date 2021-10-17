@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.cqkk.mapper.SingerMapper">
+
+    <resultMap type="com.cqkk.entity.Singer" id="SingerMap">
+        <id column="SINGER_ID" property="singerId"/>
+        <result column="SINGER_NM" property="singerNm"/>
+        <result column="SINGER_SEX" property="singerSex"/>
+        <result column="AGE" property="age"/>
+        <result column="SINGER_PATH" property="singerPath"/>
+    </resultMap>
+
+    <!--查-->
+    <select id="getSingerInfoByRowBounds" resultMap="SingerMap">
+        select *
+        from singer
+    </select>
+</mapper>

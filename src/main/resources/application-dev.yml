@@ -1,6 +1,6 @@
 #配置端口信息
 server:
-  port: 8888
+  port: 8889
 
 #配置数据库信息
 spring:
@@ -9,5 +9,140 @@ spring:
     username: root
     password: password
     driver-class-name: com.mysql.cj.jdbc.Driver
+  #thymeleaf
+  thymeleaf:
+    cache: false #是否开启缓存，关闭缓存，避免修改模板还要重启程序
+  #reids相关配置
+  redis:
+    #redis服务器地址
+    host: 127.0.0.1
+    #redis服务器端口
+    port: 6379
+    #redis密码，默认为空
+    password: redisAdmin
+    ##redis数据库索引（默认为0）
+    database: 0
+    jedis:
+      pool:
+        #连接池对打阻塞等待时间（负表示没有限制）
+        max-wait: 10000
+        #连接池最大连接数(负表示没有限制)
+        max-active: 100
+        #连接池中的最大空闲链接
+        max-idle: 20
+        #连接池中的最小空闲链接
+        min-idle: 0
+    #链接超时时间
+    connect-timeout: 3000
+
+  mail:
+    # 默认的邮件编码为UTF-8
+    default-encoding: UTF-8
+    # 配置 SMTP 服务器地址
+    #126邮箱SMTP服务器地址:smtp.126.com,端口号:465或者994
+    #163邮箱SMTP服务器地址:smtp.163.com,端口号:465或者994
+    #qq邮箱SMTP服务器地址：smtp.qq.com,端口号465或587*
+    host: stmp.qq.com
+    # 发送者邮箱
+    username: 956402755@qq.com
+    # 配置密码，注意不是真正的密码，而是刚刚申请到的授权码
+    password: byypcsjizfidbbei
+    # 端口号465或587
+    port: 465
+    # 配置SSL 加密工厂
+    properties:
+      mail:
+        smtp:
+          socketFactoryClass: javax.net.ssl.SSLSocketFactory
+      partitioner:
+        class: com.cqkk.config.mq.kafka.CustomizePartitioner
+        debug: true
+  rabbitmq:
+    host: 127.0.0.1
+    port: 5672
+    username: guest
+    password: guest
+    #确认消息已发送到交换机(Exchange)
+    publisher-confirm-type: correlated
+    #确认消息已发送到队列(Queue)
+    publisher-returns: true
+  ###########【Kafka集群】###########
+  kafka:
+    bootstrap-servers: 192.168.0.104:9091,192.168.0.104:9092,192.168.0.104:9093
+    ###########【初始化生产者配置】###########
+    producer:
+      # 重试次数
+      retries: 0
+      # 应答级别:多少个分区副本备份完成时向生产者发送ack确认(可选0、1、all/-1)
+      acks: 1
+      # 批量大小
+      batch-size: 16384
+      # 提交延时
+      properties:
+        linger:
+          ms: 0
+      # 当生产端积累的消息达到batch-size或接收到消息linger.ms后,生产者就会将消息提交给kafka
+      # linger.ms为0表示每接收到一条消息就提交给kafka,这时候batch-size其实就没用了
+      # 生产端缓冲区大小
+      buffer-memory: 33554432
+      # Kafka提供的序列化和反序列化类
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+
+    ###########【初始化消费者配置】###########
+    consumer:
+      # 默认的消费组ID
+      # 是否自动提交offset
+      enable-auto-commit: true
+      # 提交offset延时(接收到消息后多久提交offset)
+      auto-commit-interval: 1000
+      group-id: defaultConsumerGroup
+      # 当kafka中没有初始offset或offset超出范围时将自动重置offset
+      # earliest:重置为分区中最小的offset;
+      # latest:重置为分区中最新的offset(消费分区中新产生的数据);
+      # none:只要有一个分区不存在已提交的offset,就抛出异常;
+      auto-offset-reset: latest
+      # Kafka提供的序列化和反序列化类
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+#批量消费
+      # 批量消费每次最多消费多少条消息
+      max-poll-records: 50
+    listener:
+      # 设置批量消费
+      type: batch
+myemail:
+  #邮件接收者
+  recipient: 1246394593@qq.com
+  #邮件抄送人
+  cc: 2811702912@qq.com
+  #设置隐秘抄送人
+  bcc: 1394133718@qq.com
+
+swagger:
+  enabled: true
+
+#mybatis
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.cqkk.entity
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl #日志打印控制台
+    map-underscore-to-camel-case: true #开启驼峰命名
+
+#自定义文件上传的路径以及下载文件的路径
+file:
+  upload:
+    path: D:/developmentEnvironment/File/file_upload
+  dowmload:
+    path: D:/developmentEnvironment/File/file_download
+
+mybatis-plus:
+  global-config:
+    # 逻辑删除配置
+    db-config:
+      logic-delete-field: flag  # 全局逻辑删除的实体字段名
+      logic-delete-value: 1 # 逻辑已删除值(默认为 1)
+      logic-not-delete-value: 0 # 逻辑未删除值(默认为 0)
 
 
