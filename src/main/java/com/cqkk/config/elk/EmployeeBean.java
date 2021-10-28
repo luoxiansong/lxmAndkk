@@ -49,7 +49,7 @@ public class EmployeeBean {
      * 员工年龄
      */
     @Field(type = FieldType.Text, analyzer = "ik_max_word")
-    private Integer age;
+    private Integer  age;
 
     /**
      * 手机号码
