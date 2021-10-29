@@ -7,7 +7,7 @@ spring:
   datasource:
     url: jdbc:mysql://127.0.0.1:3306/myblog?useUncode=true&characterEncoding=utf-8
     username: root
-    password: password
+    password: 123456
     driver-class-name: com.mysql.cj.jdbc.Driver
   #thymeleaf
   thymeleaf:
@@ -68,7 +68,7 @@ spring:
     publisher-returns: true
   ###########【Kafka集群】###########
   kafka:
-    bootstrap-servers: 192.168.0.104:9091,192.168.0.104:9092,192.168.0.104:9093
+    bootstrap-servers: 192.168.4.19:9091,192.168.4.19:9092,192.168.4.19:9093
     ###########【初始化生产者配置】###########
     producer:
       # 重试次数
