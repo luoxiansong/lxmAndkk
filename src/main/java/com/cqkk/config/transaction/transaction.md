@@ -97,3 +97,70 @@ TransactionDefinition.PROPAGATION_NESTED：该传播机制的特点是可以保�
 这里需要指出的是，前面的六种事务传播行为是 Spring 从 EJB 中引入的，他们共享相同的概念。而 PROPAGATION_NESTED是 Spring 所特有的。以 PROPAGATION_NESTED 启动的事务内嵌于外部事务中（如果存在外部事务的话），此时，内嵌事务并不是一个独立的事务，它依赖于外部事务的存在，只有通过外部的事务提交，才能引起内部事务的提交，嵌套的子事务不能单独提交。如果熟悉 JDBC 中的保存点（SavePoint）的概念，那嵌套事务就很容易理解了，其实嵌套的子事务就是保存点的一个应用，一个事务中可以包括多个保存点，每一个嵌套子事务。另外，外部事务的回滚也会导致嵌套子事务的回滚。
 挂起事务，指的是将当前事务的属性如事务名称，隔离级别等属性保存在一个变量中，同时将当前线程中所有和事务相关的ThreadLocal变量设置为从未开启过线程一样。Spring维护着一个当前线程的事务状态，用来判断当前线程是否在一个事务中以及在一个什么样的事务中，挂起事务后，当前线程的事务状态就好像没有事务。
 
+
+#SqlSessionTemplate简介
+通俗地讲，SqlSessionTemplate是Mybatis—Spring的核心，是用来代替默认Mybatis实现的DefaultSqlSessionFactory，
+也可以说是DefaultSqlSessionFactory的优化版，主要负责管理Mybatis的SqlSession，调用Mybatis的sql方法， SqlSessionTemplate是线程安全的，
+通过TransactionSynchronizationManager中的ThreadLocal保存线程对应的SqlSession, 可以被多个Dao共享使用。
+
+SqlSessionTemplate是个线称安全的类，每运行一个SqlSessionTemplate时，它就会重新获取一个新的SqlSession，
+所以每个方法都有一个独立的SqlSession，这意味着它是线称安全的。
+#SqlSessionTemplate实现方式
+<dependency>
+    <groupId>org.mybatis.spring.boot</groupId>
+    <artifactId>mybatis-spring-boot-starter</artifactId>
+    <version>1.3.1</version>
+</dependency>
+Mybatis里面有提供SqlSessionTemplate，由于SpringBoot都是用的注解的方式注入，
+所以没有Spring-Mybatis.xml也就不需要配置，用Autowired直接自动注入即可。
+![img.png](img.png)
+![img_1.png](img_1.png)
+
+#Mybatis 一级缓存、二级缓存
+其中一级缓存默认是开启的，二级缓存是要手动配置开启的
+#一级缓存
+1：一级缓存是默认开启的；
+2：底层其实是基于hashmap的本地内存缓存；
+3：作用域是session（其实就相当于一个方法）；
+4：当session关闭或者刷新的时候缓存清空；
+5：不通sqlsession之间缓存互不影响；
+
+问题一：其实一级缓存也有数据一致性问题：
+比如：我有一个更新操作对同一条数据，
+如果是sqlsessionA进行了更新操作，则sqlsessionA对应的一级缓存被清空；
+如果是sqlsessionB进行了更新操作，则此更新操作对改sqlsessionA不可见；
+那么其实这个时候sqlsessionA再查的数据就是过期失效数据了；
+就出现了数据不一致现象；
+
+建议：
+1：单个sqlsession的生命周期不能过长；
+2：如果是对同一个语句更新尽量使用同一个sql，也就是同一个sqlsession；
+3：建议关闭一级缓存，
+怎么关闭呢？
+在mybatis的全局配置文件中增加
+
+<settiog name="localCacheScope" value="STATEMENT" />
+
+#二级缓存
+1：首先mybatis默认是没有开启二级缓存的，
+2：二级缓存需要我们手动开启，它是mapper级别的缓存；
+3：同一个namespace下的所有操作语句，都影响着同一个Cache，即二级缓存被多个SqlSession共享，是一个全局的变量。
+
+那怎么开启二级缓存呢？
+<setting name="cacheEnabled" value="true"/>
+
+使用二级缓存？
+在标签<mapper>下面添加<cache/>
+使用二级缓存的pojo类实现序列化接口；
+
+当然二级缓存也不建议使用，mysql都默认关闭了，更何况我们呢；
+因为二级缓存是建立在同一个namespace下的，如果对某一个表的操作查询可能有多个namespace，那么得到的数据就是有问题的；
+
+建议：
+1：对某个表的操作和查询都写在同一个namespace下，其他的namespace如果有操作就会有问题，脏数据；
+2：对表的关联查询，关联的所有表的操作都必须在同一个namespace下；（这点在实际生产中简直太垃圾了，怎么可能呢）
+
+总结
+建议统一使用第三方插件来做缓存，如redis，mamcache等，
+关闭mybatis的一级缓存和二级缓存，
+mybatis仅仅只限于orm框架，数据库和对象的映射，以及操作sql；
