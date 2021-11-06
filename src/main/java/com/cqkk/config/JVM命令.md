@@ -5,7 +5,7 @@ jps是jdk提供的一个查看当前java进程的小工具 是java提供的一�
 使用方法： 注：在当前命令行下打jps(jps存放在JAVA_HOME/bin/jps，使用时为了方便需将JAVA_HOME/bin/加入到Path) 。 $> jps 23991 Jps 23651 Resin
 
 -q 只显示pid，不显示class名称,jar文件名和传递给main方法的参数 [jps -q]
--m 输出传递给main方法的参数，在嵌入式jvm上可能是null [jps -m]
+-m 输出传递给main方法的参数， 在嵌入式jvm上可能是null [jps -m]
 -l 输出应用程序main class的完整package名或者应用程序的jar文件完整路径名 [jps -l]
 -v 输出传递给JVM的参数 [jps -v]
 -V 隐藏输出传递给JVM的参数 [jps -V]
