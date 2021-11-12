@@ -59,6 +59,35 @@ public String test() {
 作用于类：当把@Transactional 注解放在类上时，表示所有该类的 public 方法 都配置相同的事务属性信息。
 作用于方法：当类配置了@Transactional，方法也配置了@Transactional，方法的事务会 覆盖 类的事务配置信息。
 作用于接口：不推荐这种使用方法，因为一旦标注在Interface上并且配置了Spring AOP 使用CGLib动态代理，将会导致@Transactional注解失效
+
+#SpringBoot事务注解@Transactional 事物回滚、手动回滚事物
+处理springboot 下提交事务异常，数据库没有回滚的问题。
+spring的文档中说道，spring声明式事务管理默认对非检查型异常和运行时异常进行事务回滚，而对检查型异常则不进行回滚操作。
+
+什么是检查型异常什么又是非检查型异常？
+最简单的判断点有两个：
+1.继承自runtimeexception或error的是非检查型异常，而继承自exception的则是检查型异常（当然，runtimeexception本身也是exception的子类）。
+2.对非检查型类异常可以不用捕获，而检查型异常则必须用try语句块进行处理或者把异常交给上级方法处理总之就是必须写代码处理它。
+所以必须在service捕获异常，然后再次抛出，这样事务方才起效。
+结论：
+在spring的事务管理环境下，使用unckecked exception可以极大地简化异常的处理，只需要在事务层声明可能抛出的异常
+（这里的异常可以是自定义的unckecked exception体系），在所有的中间层都只是需要简单throws即可，不需要捕捉和处理，直接到最高层，
+比如UI层再进行异常的捕捉和处理。
+默认规则：
+1 让checked例外也回滚： @Transactional(rollbackFor=Exception.class)，一般只需添加这个即可
+2 让unchecked例外不回滚： @Transactional(notRollbackFor=RunTimeException.class)
+3 不需要事务管理的(只查询的)方法：@Transactional(propagation=Propagation.NOT_SUPPORTED)，或者不添加
+注意： 如果异常被try｛｝catch｛｝了，事务就不回滚了，如果想让事务回滚必须再往外抛try｛｝catch｛throw Exception｝。
+因为一旦你try｛｝catch｛｝了。系统会认为你已经手动处理了异常，就不会进行回滚操作。
+#spring 事务控制 设置手动回滚 TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+这个需要注意两点：
+1. 方法上要加上@Transactional(rollbackFor = Exception.class)
+   再配合TransactionAspectSupport.currentTransactionStatus().setRollbackOnly(); 才可以
+2. 在web项目中，很多时候要用到@Transactional 注解方法或者类进行事务处理，自动事务提交有时候就会有问题，这个时候就要用到手动进行事务提交，
+   在try catch 异常抛出里面手动回滚事务处理TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+使用Object savePoint = TransactionAspectSupport.currentTransactionStatus().createSavepoint(); 设置回滚点，
+使用TransactionAspectSupport.currentTransactionStatus().rollbackToSavepoint(savePoint);回滚到savePoint。
+
 ##@Transactional失效场景
 #@Transactional 应用在非 public 修饰的方法上
 #@Transactional 注解属性 propagation 设置错误
@@ -164,3 +193,5 @@ Mybatis里面有提供SqlSessionTemplate，由于SpringBoot都是用的注解的
 建议统一使用第三方插件来做缓存，如redis，mamcache等，
 关闭mybatis的一级缓存和二级缓存，
 mybatis仅仅只限于orm框架，数据库和对象的映射，以及操作sql；
+
+
