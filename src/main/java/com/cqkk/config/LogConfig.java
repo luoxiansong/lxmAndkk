@@ -2,6 +2,7 @@ package com.cqkk.config;
 
 import com.cqkk.entity.MyLog;
 import com.cqkk.mapper.LogMapper;
+import com.github.pagehelper.util.StringUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -67,7 +68,7 @@ public class LogConfig {
         myLog.setIp(addr);
         myLog.setStatus("0");
         myLog.setUrlName(className);
-        myLog.setUserName(username);
+        myLog.setUserName(!StringUtil.isEmpty(username) ? username : "ceshiAdmin");
 
         logMapper.insert(myLog);
         return result;

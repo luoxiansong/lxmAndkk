@@ -3,6 +3,7 @@ package com.cqkk;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -14,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 @SpringBootApplication
 @Transactional
 @MapperScan("com.cqkk.mapper")
+@EnableAsync
 public class PsnproApplication {
 
     public static void main(String[] args) {
